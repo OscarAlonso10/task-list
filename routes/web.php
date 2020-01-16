@@ -9,11 +9,25 @@ Route::delete('/task/{task}', function (Task $task) {
     return redirect('/');
 });
 
+Route::put('/task/{task}', function (Task $task) {
+    $task->done = True;
+    $task->update();
+
+    return redirect('/');
+});
+
 Route::get('/', function () {
     $tasks = Task::orderBy('created_at', 'asc')->get();
+    $taskDone = $tasks->filter(function($value){
+        return $value["done"] == True;
+    });
+    $taskUndone = $tasks->filter(function($value){
+        return $value["done"] == False;
+    });
 
     return view('tasks', [
-        'tasks' => $tasks
+        "taskDone" => $taskDone,
+        "taskUndone" => $taskUndone
     ]);
 });
 
@@ -31,7 +45,7 @@ Route::post('/task', function (Request $request) {
 
     $task = new Task;
     $task->name = $request->name;
-    $task->done = "False";
+    $task->done = False;
     $task->save();
 
     return redirect('/');
